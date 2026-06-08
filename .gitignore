@@ -1,0 +1,11 @@
+node_modules
+dist
+.DS_Store
+.env
+.env.*
+artifacts/*.json
+playwright-report
+test-results
+.turbo
+.vite
+

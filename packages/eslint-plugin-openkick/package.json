@@ -1,0 +1,12 @@
+{
+  "name": "eslint-plugin-openkick",
+  "version": "0.1.0",
+  "main": "index.js",
+  "type": "commonjs",
+  "exports": {
+    ".": "./index.js"
+  },
+  "peerDependencies": {
+    "eslint": ">=8.0.0"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@openkick/config",
+  "version": "0.1.0",
+  "private": true,
+  "main": "tsconfig.json",
+  "files": [
+    "tsconfig.base.json",
+    "tailwind.config.js",
+    "vitest.config.ts",
+    "playwright.config.ts"
+  ]
+}

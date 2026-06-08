@@ -1,0 +1,24 @@
+import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import { describe, expect, it } from "vitest";
+import Header from "./Header";
+
+describe("Header", () => {
+  it("renders only public-facing navigation links", () => {
+    render(
+      <MemoryRouter>
+        <Header />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("link", { name: /cases/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /eligibility/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /invest/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /contact/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /privacy/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /terms/i })).toBeInTheDocument();
+
+    expect(screen.queryByRole("link", { name: /investor dashboard/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /traceability/i })).not.toBeInTheDocument();
+  });
+});
