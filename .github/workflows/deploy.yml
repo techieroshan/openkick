@@ -6,7 +6,6 @@ on:
 
 jobs:
   deploy:
-    if: ${{ secrets.DEPLOY_HOST != '' && secrets.DEPLOY_USER != '' && secrets.DEPLOY_SSH_KEY != '' }}
     runs-on: ubuntu-latest
     env:
       DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
@@ -30,6 +29,15 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Verify deployment secrets
+        run: |
+          for name in DEPLOY_HOST DEPLOY_USER DEPLOY_SSH_KEY; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::Missing required secret: $name"
+              exit 1
+            fi
+          done
 
       - name: Build web and bff
         run: |
