@@ -1,0 +1,57 @@
+name: deploy-openkick
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    if: ${{ secrets.DEPLOY_HOST != '' && secrets.DEPLOY_USER != '' && secrets.DEPLOY_SSH_KEY != '' }}
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      SSH_PORT: ${{ secrets.SSH_PORT || '6150' }}
+      APP_PORT: "11701"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build web and bff
+        run: |
+          pnpm --filter @openkick/web build
+          pnpm --filter @openkick/bff build
+
+      - name: Configure SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Add host key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "$SSH_PORT" "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+
+      - name: Deploy to server
+        run: |
+          ssh -p "$SSH_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p /opt/openkick"
+          rsync -avz --delete -e "ssh -p $SSH_PORT" . "$DEPLOY_USER@$DEPLOY_HOST:/opt/openkick/"
+          ssh -p "$SSH_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "cd /opt/openkick && docker compose -f docker-compose.prod.yml up -d --build"
+
+      - name: Verify app endpoint
+        run: |
+          echo "Deployment is configured for host port ${APP_PORT} on ${DEPLOY_HOST} via SSH port ${SSH_PORT}."

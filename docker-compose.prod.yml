@@ -1,0 +1,21 @@
+services:
+  bff:
+    build:
+      context: .
+      dockerfile: docker/bff.Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 8787
+    expose:
+      - "8787"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    depends_on:
+      - bff
+    ports:
+      - "11701:80"
+    restart: unless-stopped
