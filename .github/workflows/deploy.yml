@@ -57,9 +57,9 @@ jobs:
 
       - name: Deploy to server
         run: |
-          ssh -p "$SSH_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p /opt/openkick"
-          rsync -avz --delete -e "ssh -p $SSH_PORT" . "$DEPLOY_USER@$DEPLOY_HOST:/opt/openkick/"
-          ssh -p "$SSH_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "cd /opt/openkick && docker compose -f docker-compose.prod.yml up -d --build"
+          ssh -p "$SSH_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p ~/openkick"
+          rsync -avz --delete -e "ssh -p $SSH_PORT" . "$DEPLOY_USER@$DEPLOY_HOST:~/openkick/"
+          ssh -p "$SSH_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "cd ~/openkick && docker compose -f docker-compose.prod.yml up -d --build"
 
       - name: Verify app endpoint
         run: |
