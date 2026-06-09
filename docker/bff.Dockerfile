@@ -11,7 +11,9 @@ RUN pnpm install --frozen-lockfile
 COPY packages/types packages/types
 COPY apps/bff apps/bff
 
-RUN pnpm --filter @openkick/types build && pnpm --filter @openkick/bff build
+RUN pnpm --filter @openkick/bff exec prisma generate && \
+    pnpm --filter @openkick/types build && \
+    pnpm --filter @openkick/bff build
 
 FROM node:20-alpine
 WORKDIR /app

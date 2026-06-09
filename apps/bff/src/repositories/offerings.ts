@@ -73,7 +73,7 @@ export function getOfferingsRepository() {
           category: true,
         },
       });
-      return offerings.map((o) => mapPrismaOfferingToOffering(o as any));
+      return offerings.map((o: any) => mapPrismaOfferingToOffering(o as any));
     },
     async findById(id: string): Promise<Offering | undefined> {
       const o = await prisma.offering.findUnique({

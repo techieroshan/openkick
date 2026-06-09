@@ -19,7 +19,7 @@ export function getDistributionsRepository() {
       const distributions = await prisma.distribution.findMany({
         where: { offeringId },
       });
-      return distributions.map((d) => ({
+      return distributions.map((d: any) => ({
         id: d.id,
         offering_id: d.offeringId,
         amount: d.amount,

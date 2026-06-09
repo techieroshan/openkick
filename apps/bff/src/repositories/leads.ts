@@ -15,7 +15,7 @@ export function getLeadsRepository() {
           case: true
         }
       });
-      return leads.map(l => ({
+      return leads.map((l: any) => ({
         id: l.id,
         client: l.user.firstName + " " + l.user.lastName,
         issue: l.investigation?.title || l.case?.title || "Class Action",

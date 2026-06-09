@@ -13,7 +13,7 @@ export function getClaimsRepository() {
           case: true
         }
       });
-      return claims.map(c => ({
+      return claims.map((c: any) => ({
         id: c.id,
         defendant: c.case.defendants,
         status: c.status,
