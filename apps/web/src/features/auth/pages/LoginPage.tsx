@@ -4,17 +4,20 @@
  */
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthContext";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, we would call an API and set auth state
-    localStorage.setItem("ok_auth", JSON.stringify({ email, role: "consumer" }));
-    navigate("/cases");
+    // In a real app, we would call an API to verify credentials
+    // For now, default to consumer role
+    login(email, password, "consumer");
+    navigate("/dashboard/consumer");
   };
 
   return (

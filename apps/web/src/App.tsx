@@ -5,6 +5,7 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const HomePage = lazy(() => import("./features/home/pages/HomePage"));
 const SettlementsPage = lazy(() => import("./features/settlements/pages/SettlementsPage"));
@@ -36,10 +37,38 @@ function App() {
           <Route path="/traceability" element={<TraceabilityPage />} />
           <Route path="/invest" element={<InvestPage />} />
           <Route path="/invest/offerings/:id" element={<OfferingDetailPage />} />
-          <Route path="/dashboard/investor" element={<InvestorDashboardPage />} />
-          <Route path="/dashboard/consumer" element={<ConsumerDashboardPage />} />
-          <Route path="/dashboard/attorney" element={<AttorneyDashboardPage />} />
-          <Route path="/dashboard/admin" element={<SettlementAdminPage />} />
+          <Route
+            path="/dashboard/investor"
+            element={
+              <ProtectedRoute requiredRole="investor">
+                <InvestorDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/consumer"
+            element={
+              <ProtectedRoute requiredRole="consumer">
+                <ConsumerDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/attorney"
+            element={
+              <ProtectedRoute requiredRole="attorney">
+                <AttorneyDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/admin"
+            element={
+              <ProtectedRoute requiredRole={["admin", "website_admin"]}>
+                <SettlementAdminPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/settings/privacy" element={<SettingsPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
