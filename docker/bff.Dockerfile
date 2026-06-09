@@ -27,6 +27,7 @@ COPY --from=build /app/packages/types/dist /app/packages/types/dist
 COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/apps/bff/node_modules /app/apps/bff/node_modules
 COPY --from=build /app/apps/bff/dist /app/apps/bff/dist
+COPY --from=build /app/apps/bff/prisma /app/apps/bff/prisma
 
 EXPOSE 8787
-CMD ["node", "apps/bff/dist/server.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node apps/bff/dist/server.js"]
