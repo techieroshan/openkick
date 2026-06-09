@@ -461,6 +461,7 @@ enum OfferingType {
   reg_cf
   reg_d
   reg_a
+  litigation_fund
 }
 
 enum InstrumentType {
@@ -468,6 +469,7 @@ enum InstrumentType {
   preferred_equity
   convertible_note
   equity
+  revenue_share
 }
 
 model Offering {
