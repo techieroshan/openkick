@@ -40,7 +40,7 @@ export default function InvestorDashboardPage() {
   );
 
   return (
-    <div className="container mx-auto px-4 py-10 md:py-14" data-testid="ok:investor:dashboard:page:root:US-096">
+    <div className="container mx-auto px-4 py-10 md:py-14" data-testid="ok:investor:dashboard:root:US-096">
       <header className="mb-10">
         <p className="text-sm uppercase tracking-[0.25em] text-primary">Investor portal</p>
         <h1 className="mt-2 text-4xl font-bold tracking-tight">Your Dashboard</h1>

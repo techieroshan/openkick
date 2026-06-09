@@ -52,7 +52,7 @@ export default function LawyersPage() {
           <p className="text-sm uppercase tracking-[0.25em] text-primary">Find a lawyer</p>
           <h1 className="text-4xl font-bold tracking-tight">Report harm and find qualified legal representation</h1>
           <p className="text-lg text-muted-foreground">
-            Connect with verified plaintiff firms through Openkick's secure intake. Our platform ensures your evidence is reviewed by specialists who understand the scale of systemic corporate harm.
+            Connect with verified plaintiff firms through Openkick&apos;s secure intake. Our platform ensures your evidence is reviewed by specialists who understand the scale of systemic corporate harm.
           </p>
           <Link
             to="/contact"
@@ -66,7 +66,7 @@ export default function LawyersPage() {
         <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
           <h2 className="text-xl font-semibold">Whistleblower Protections</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Openkick uses industry-standard encryption for all submissions. We prioritize your anonymity and only share your contact details with counsel after you've reviewed their credentials and provided explicit consent.
+            Openkick uses industry-standard encryption for all submissions. We prioritize your anonymity and only share your contact details with counsel after you&apos;ve reviewed their credentials and provided explicit consent.
           </p>
           <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
             <li className="flex gap-2"><span>🛡️</span> <span>End-to-end encrypted intake</span></li>
@@ -118,7 +118,7 @@ export default function LawyersPage() {
               </div>
               <h3 className="text-lg font-bold leading-tight">{firm.name}</h3>
               <p className="mt-1 text-xs font-semibold text-primary">{firm.focus}</p>
-              <p className="mt-3 text-sm text-muted-foreground line-clamp-2 italic">"{firm.description}"</p>
+              <p className="mt-3 text-sm text-muted-foreground line-clamp-2 italic">&ldquo;{firm.description}&rdquo;</p>
               <div className="mt-auto pt-4 flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{firm.state}</span>
                 <Link to="/contact" className="text-xs font-bold text-primary hover:underline">Request Review</Link>

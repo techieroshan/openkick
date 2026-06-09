@@ -33,7 +33,7 @@ export function getDistributionsRepository() {
         data: {
           offeringId: data.offering_id,
           amount: data.amount,
-          distribution_date: new Date(data.distribution_date),
+          distributionDate: new Date(data.distribution_date),
           description: data.description,
         },
       });

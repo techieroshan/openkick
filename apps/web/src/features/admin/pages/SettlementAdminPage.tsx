@@ -48,20 +48,20 @@ export default function SettlementAdminPage() {
         <form className="grid gap-6 md:grid-cols-2">
           <div className="space-y-4 text-sm">
             <div>
-              <label className="block font-medium mb-1">Select Case</label>
-              <select className="w-full rounded-xl border border-border bg-background px-3 py-2">
+              <label htmlFor="case-select" className="block font-medium mb-1">Select Case</label>
+              <select id="case-select" className="w-full rounded-xl border border-border bg-background px-3 py-2">
                 <option>Meta Privacy Settlement</option>
                 <option>Apple Battery Gate</option>
                 <option>Google Location Tracking</option>
               </select>
             </div>
             <div>
-              <label className="block font-medium mb-1">Campaign Budget</label>
-              <input type="text" placeholder="$5,000" className="w-full rounded-xl border border-border bg-background px-3 py-2" />
+              <label htmlFor="budget-input" className="block font-medium mb-1">Campaign Budget</label>
+              <input id="budget-input" type="text" placeholder="$5,000" className="w-full rounded-xl border border-border bg-background px-3 py-2" />
             </div>
             <div>
-              <label className="block font-medium mb-1">Target Criteria</label>
-              <div className="flex flex-wrap gap-2 mt-2">
+              <label htmlFor="criteria-input" className="block font-medium mb-1">Target Criteria</label>
+              <div id="criteria-input" className="flex flex-wrap gap-2 mt-2">
                 <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold">California Only</span>
                 <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold">Age 18-35</span>
                 <span className="bg-muted px-3 py-1 rounded-full text-xs font-bold">+ Add Criteria</span>

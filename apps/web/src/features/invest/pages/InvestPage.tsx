@@ -49,12 +49,13 @@ export default function InvestPage() {
         </div>
         
         <div className="flex items-center gap-3">
-          <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Filter by Status</label>
+          <label htmlFor="status-filter" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Filter by Status</label>
           <select
+            id="status-filter"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as OfferingStatus | "")}
             className="rounded-full border border-border bg-background px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20"
-            data-testid="ok:invest:offerings:filter:status:US-093:AC-093-2"
+            data-testid="ok:invest:filter:status:US-093:AC-093-2"
           >
             <option value="">All Offerings</option>
             <option value="open">Open</option>

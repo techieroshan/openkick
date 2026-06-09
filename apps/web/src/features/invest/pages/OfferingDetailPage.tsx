@@ -49,7 +49,7 @@ export default function OfferingDetailPage() {
   const canInvest = offering.status === "open" && riskAcknowledged && Number(amount) >= offering.min_investment;
 
   return (
-    <div className="container mx-auto px-4 py-8" data-testid="ok:invest:offering:page:root:US-094">
+    <div className="container mx-auto px-4 py-8" data-testid="ok:invest:offering:root:US-094">
       <div className="bg-yellow-100 border-yellow-400 border p-4 mb-6 rounded" data-testid="ok:invest:offering:risk-banner:US-106:AC-106-2">
         <strong>Risk Warning:</strong> {offering.risk_disclosures}
       </div>

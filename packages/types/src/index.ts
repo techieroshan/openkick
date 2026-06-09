@@ -103,6 +103,7 @@ export interface Investor {
     name: string;
     address: string;
     dob: string;
+    phone: string;
     tax_id?: string;
   };
   kyc_status: KYCStatus;

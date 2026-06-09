@@ -9,8 +9,8 @@ interface PrismaInvestorWithUser {
   id: string;
   userId: string;
   user: {
-    firstName: string;
-    lastName: string;
+    firstName: string | null;
+    lastName: string | null;
   };
   address: string | null;
   dateOfBirth: Date | null;
@@ -28,7 +28,7 @@ function mapPrismaInvestorToInvestor(p: PrismaInvestorWithUser): Investor {
     id: p.id,
     user_id: p.userId,
     profile: {
-      name: p.user.firstName + " " + p.user.lastName,
+      name: (p.user.firstName || "") + " " + (p.user.lastName || ""),
       address: p.address || "",
       dob: p.dateOfBirth?.toISOString().split("T")[0] || "",
       phone: p.phone || "",
@@ -49,7 +49,7 @@ export function getInvestorsRepository() {
             where: { userId },
             include: { user: true }
         });
-        return p ? mapPrismaInvestorToInvestor(p) : undefined;
+        return p ? mapPrismaInvestorToInvestor(p as any) : undefined;
     },
     async createOrUpdate(userId: string, data: Partial<Investor>): Promise<Investor> {
         const existing = await prisma.investorProfile.findUnique({
@@ -71,19 +71,19 @@ export function getInvestorsRepository() {
         if (existing) {
             const p = await prisma.investorProfile.update({
                 where: { userId },
-                data: profileData,
+                data: profileData as any,
                 include: { user: true }
             });
-            return mapPrismaInvestorToInvestor(p);
+            return mapPrismaInvestorToInvestor(p as any);
         } else {
             const p = await prisma.investorProfile.create({
                 data: {
                     ...profileData,
                     userId
-                },
+                } as any,
                 include: { user: true }
             });
-            return mapPrismaInvestorToInvestor(p);
+            return mapPrismaInvestorToInvestor(p as any);
         }
     },
     async updateKYC(userId: string, status: KYCStatus): Promise<Investor | null> {
@@ -92,12 +92,19 @@ export function getInvestorsRepository() {
             data: { kycStatus: status },
             include: { user: true }
         });
-        return p ? mapPrismaInvestorToInvestor(p) : null;
+        return p ? mapPrismaInvestorToInvestor(p as any) : null;
     },
     async updateAccreditation(userId: string, status: AccreditationStatus, expiresAt?: string | null): Promise<Investor | null> {
         const p = await prisma.investorProfile.update({
             where: { userId },
-            data: { 
+            data: {
+              isAccredited: status === "approved",
+              accreditedExpiry: expiresAt ? new Date(expiresAt) : null
+            },
+            include: { user: true }
+        });
+        return p ? mapPrismaInvestorToInvestor(p as any) : null;
+    }, 
                 isAccredited: status === "approved",
                 accreditedExpiry: expiresAt ? new Date(expiresAt) : null
             },

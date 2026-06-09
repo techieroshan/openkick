@@ -8,7 +8,7 @@ const extractSchema = z.object({
 
 export async function eligibilityRoutes(server: FastifyInstance) {
   server.post("/eligibility/extract", async (request, _reply) => {
-    const { text: _text, type: _type } = extractSchema.parse(request.body);
+    extractSchema.parse(request.body);
     
     // Simulate AI extraction logic
     return {

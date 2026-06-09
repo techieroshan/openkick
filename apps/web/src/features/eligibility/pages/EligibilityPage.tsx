@@ -41,7 +41,7 @@ export default function EligibilityPage() {
       <div className="mx-auto max-w-3xl">
         <div className="mb-10 text-center">
           <p className="text-sm uppercase tracking-[0.25em] text-primary">Eligibility</p>
-          <h1 className="mt-2 text-4xl font-bold tracking-tight">Know if you're eligible in seconds</h1>
+          <h1 className="mt-2 text-4xl font-bold tracking-tight">Know if you&apos;re eligible in seconds</h1>
           <p className="mt-4 text-lg text-muted-foreground">
             Paste a settlement notice, upload a PDF, or answer a few questions to see if you can claim money.
           </p>
@@ -64,8 +64,9 @@ export default function EligibilityPage() {
         <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
           {mode === "paste" && (
             <div className="space-y-4">
-              <label className="block text-sm font-medium">Paste Notice Text</label>
+              <label htmlFor="notice-text" className="block text-sm font-medium">Paste Notice Text</label>
               <textarea
+                id="notice-text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Paste the text from your settlement email or physical notice here..."
@@ -135,7 +136,7 @@ export default function EligibilityPage() {
                   <div className="bg-white/80 rounded-2xl p-4 shadow-sm border border-emerald-100">
                     <h3 className="text-xs font-bold text-emerald-800 uppercase mb-2">Likely Case Match</h3>
                     <p className="font-bold text-emerald-900">{results.matchCase.title}</p>
-                    <a href={results.matchCase.officialLink} target="_blank" className="text-sm text-primary underline mt-2 inline-block">Official Settlement Site</a>
+                    <a href={results.matchCase.officialLink} target="_blank" rel="noreferrer" className="text-sm text-primary underline mt-2 inline-block">Official Settlement Site</a>
                   </div>
                   <div className="bg-white/80 rounded-2xl p-4 shadow-sm border border-emerald-100">
                     <h3 className="text-xs font-bold text-emerald-800 uppercase mb-2">Class Definition</h3>

@@ -61,7 +61,7 @@ export default function ContactPage() {
       const result = await response.json();
       setSubmitted(result.referenceId);
       reset();
-    } catch (err) {
+    } catch (_err) {
       setError("Something went wrong. Please try again later.");
     } finally {
       setSubmitting(false);
