@@ -14,8 +14,6 @@ export default function SignupPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreed) return;
-    // Mock signup
-    console.log("Signup with", email, password);
     localStorage.setItem("ok_auth", JSON.stringify({ email, role: "consumer" }));
     navigate("/dashboard/consumer");
   };

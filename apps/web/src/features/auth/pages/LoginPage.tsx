@@ -12,8 +12,6 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock login
-    console.log("Login with", email, password);
     // In a real app, we would call an API and set auth state
     localStorage.setItem("ok_auth", JSON.stringify({ email, role: "consumer" }));
     navigate("/cases");
