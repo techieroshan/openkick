@@ -1,14 +1,17 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
+import { AuthProvider } from "../features/auth/AuthContext";
 import Header from "./Header";
 
 describe("Header", () => {
   it("renders only public-facing navigation links", () => {
     render(
-      <MemoryRouter>
-        <Header />
-      </MemoryRouter>,
+      <AuthProvider>
+        <MemoryRouter>
+          <Header />
+        </MemoryRouter>
+      </AuthProvider>,
     );
 
     expect(screen.getByRole("link", { name: /cases/i })).toBeInTheDocument();

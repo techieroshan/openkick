@@ -28,33 +28,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Initialize from localStorage on mount
   useEffect(() => {
-    const storedAuth = localStorage.getItem("ok_auth");
-    if (storedAuth) {
-      try {
-        const parsedAuth = JSON.parse(storedAuth);
-        setUser(parsedAuth);
-      } catch (err) {
-        console.error("Failed to parse auth from localStorage", err);
-        localStorage.removeItem("ok_auth");
+    try {
+      if (typeof window === "undefined" || typeof window.localStorage === "undefined") {
+        setIsLoading(false);
+        return;
       }
+      const storedAuth = window.localStorage.getItem("ok_auth");
+      if (storedAuth) {
+        try {
+          const parsedAuth = JSON.parse(storedAuth);
+          setUser(parsedAuth);
+        } catch (err) {
+          console.error("Failed to parse auth from localStorage", err);
+          window.localStorage.removeItem("ok_auth");
+        }
+      }
+    } catch (_err) {
+      // localStorage access might fail in test environments
     }
     setIsLoading(false);
   }, []);
 
   const login = (_email: string, _password: string, role: UserRole) => {
     const authData: AuthUser = { email: _email, role };
-    localStorage.setItem("ok_auth", JSON.stringify(authData));
+    try {
+      if (typeof window !== "undefined" && typeof window.localStorage !== "undefined") {
+        window.localStorage.setItem("ok_auth", JSON.stringify(authData));
+      }
+    } catch (_err) {
+      // localStorage access might fail in test environments
+    }
     setUser(authData);
   };
 
   const signup = (_email: string, _password: string, role: UserRole) => {
     const authData: AuthUser = { email: _email, role };
-    localStorage.setItem("ok_auth", JSON.stringify(authData));
+    try {
+      if (typeof window !== "undefined" && typeof window.localStorage !== "undefined") {
+        window.localStorage.setItem("ok_auth", JSON.stringify(authData));
+      }
+    } catch (_err) {
+      // localStorage access might fail in test environments
+    }
     setUser(authData);
   };
 
   const logout = () => {
-    localStorage.removeItem("ok_auth");
+    try {
+      if (typeof window !== "undefined" && typeof window.localStorage !== "undefined") {
+        window.localStorage.removeItem("ok_auth");
+      }
+    } catch (_err) {
+      // localStorage access might fail in test environments
+    }
     setUser(null);
   };
 
