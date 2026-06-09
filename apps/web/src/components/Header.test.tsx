@@ -15,9 +15,9 @@ describe("Header", () => {
     expect(screen.getByRole("link", { name: /eligibility/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /invest/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /contact/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /privacy/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /terms/i })).toBeInTheDocument();
 
+    expect(screen.queryByRole("link", { name: /privacy/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /terms/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /investor dashboard/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /traceability/i })).not.toBeInTheDocument();
   });

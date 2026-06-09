@@ -11,19 +11,18 @@ export async function investmentsRoutes(fastify: FastifyInstance) {
   fastify.get("/investments", async (request, reply) => {
     const userId = (request.headers["x-user-id"] as string) || "user-1";
     const investorRepo = getInvestorsRepository();
-    const investor = investorRepo.findByUserId(userId);
+    const investor = await investorRepo.findByUserId(userId);
     if (!investor) {
       return reply.code(404).send({ error: "Investor not found" });
     }
     const repo = getInvestmentsRepository();
-    const investments = repo.findByInvestorId(investor.id);
+    const investments = await repo.findByInvestorId(investor.id);
     return { data: investments };
   });
 
   fastify.get<{ Params: { id: string } }>("/investments/:id", async (request, reply) => {
     const repo = getInvestmentsRepository();
-    const investments = repo.findByInvestorId("any"); // Simplified
-    const investment = investments.find((i) => i.id === request.params.id);
+    const investment = await repo.findById(request.params.id);
     if (!investment) {
       return reply.code(404).send({ error: "Not found" });
     }
@@ -35,12 +34,12 @@ export async function investmentsRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       const userId = (request.headers["x-user-id"] as string) || "user-1";
       const investorRepo = getInvestorsRepository();
-      const investor = investorRepo.findByUserId(userId);
+      const investor = await investorRepo.findByUserId(userId);
       if (!investor) {
         return reply.code(404).send({ error: "Investor not found" });
       }
       const repo = getInvestmentsRepository();
-      const investment = repo.create({
+      const investment = await repo.create({
         offering_id: request.params.id,
         investor_id: investor.id,
         amount: request.body.amount,

@@ -1,53 +1,95 @@
 /**
  * @trace US-090, US-091, US-092
- * Mock investors repository
+ * Prisma investors repository
  */
 import { Investor, KYCStatus, AccreditationStatus } from "@openkick/types";
+import { prisma } from "../lib/prisma.js";
 
-let investors: Investor[] = [];
+function mapPrismaInvestorToInvestor(p: any): Investor {
+  return {
+    id: p.id,
+    user_id: p.userId,
+    profile: {
+      name: p.user.firstName + " " + p.user.lastName,
+      address: p.address || "",
+      dob: p.dateOfBirth?.toISOString().split("T")[0] || "",
+      phone: p.phone || "",
+      tax_id: p.taxId || "",
+    },
+    kyc_status: p.kycStatus as KYCStatus,
+    accreditation_status: (p.isAccredited ? "approved" : "not_required") as AccreditationStatus,
+    accreditation_expires_at: p.accreditedExpiry?.toISOString() || null,
+    created_at: p.createdAt.toISOString(),
+    updated_at: p.updatedAt.toISOString(),
+  };
+}
 
 export function getInvestorsRepository() {
   return {
-    findByUserId(userId: string): Investor | undefined {
-      return investors.find((i) => i.user_id === userId);
+    async findByUserId(userId: string): Promise<Investor | undefined> {
+        const p = await prisma.investorProfile.findUnique({
+            where: { userId },
+            include: { user: true }
+        });
+        return p ? mapPrismaInvestorToInvestor(p) : undefined;
     },
-    createOrUpdate(userId: string, data: Partial<Investor>): Investor {
-      const existing = investors.find((i) => i.user_id === userId);
-      if (existing) {
-        Object.assign(existing, data, { updated_at: new Date().toISOString() });
-        return existing;
-      }
-      const investor: Investor = {
-        id: crypto.randomUUID(),
-        user_id: userId,
-        profile: data.profile || { name: "", address: "", dob: "" },
-        kyc_status: data.kyc_status || "not_started",
-        accreditation_status: data.accreditation_status || "not_required",
-        accreditation_expires_at: data.accreditation_expires_at || null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      investors.push(investor);
-      return investor;
+    async createOrUpdate(userId: string, data: Partial<Investor>): Promise<Investor> {
+        const existing = await prisma.investorProfile.findUnique({
+            where: { userId },
+            include: { user: true }
+        });
+
+        const profileData: any = {};
+        if (data.profile) {
+            if (data.profile.address) profileData.address = data.profile.address;
+            if (data.profile.dob) profileData.dateOfBirth = new Date(data.profile.dob);
+            if (data.profile.phone) profileData.phone = data.profile.phone;
+            if (data.profile.tax_id) profileData.taxId = data.profile.tax_id;
+        }
+        if (data.kyc_status) profileData.kycStatus = data.kyc_status;
+        if (data.accreditation_status) profileData.isAccredited = data.accreditation_status === "approved";
+        if (data.accreditation_expires_at) profileData.accreditedExpiry = new Date(data.accreditation_expires_at);
+
+        if (existing) {
+            const p = await prisma.investorProfile.update({
+                where: { userId },
+                data: profileData,
+                include: { user: true }
+            });
+            return mapPrismaInvestorToInvestor(p);
+        } else {
+            const p = await prisma.investorProfile.create({
+                data: {
+                    ...profileData,
+                    userId
+                },
+                include: { user: true }
+            });
+            return mapPrismaInvestorToInvestor(p);
+        }
     },
-    updateKYC(userId: string, status: KYCStatus): Investor | null {
-      const investor = investors.find((i) => i.user_id === userId);
-      if (!investor) return null;
-      investor.kyc_status = status;
-      investor.updated_at = new Date().toISOString();
-      return investor;
+    async updateKYC(userId: string, status: KYCStatus): Promise<Investor | null> {
+        const p = await prisma.investorProfile.update({
+            where: { userId },
+            data: { kycStatus: status },
+            include: { user: true }
+        });
+        return p ? mapPrismaInvestorToInvestor(p) : null;
     },
-    updateAccreditation(userId: string, status: AccreditationStatus, expiresAt?: string | null): Investor | null {
-      const investor = investors.find((i) => i.user_id === userId);
-      if (!investor) return null;
-      investor.accreditation_status = status;
-      investor.accreditation_expires_at = expiresAt || null;
-      investor.updated_at = new Date().toISOString();
-      return investor;
+    async updateAccreditation(userId: string, status: AccreditationStatus, expiresAt?: string | null): Promise<Investor | null> {
+        const p = await prisma.investorProfile.update({
+            where: { userId },
+            data: { 
+                isAccredited: status === "approved",
+                accreditedExpiry: expiresAt ? new Date(expiresAt) : null
+            },
+            include: { user: true }
+        });
+        return p ? mapPrismaInvestorToInvestor(p) : null;
     },
   };
 }
 
 export function seedInvestors() {
-  investors = [];
+  // Database should be seeded via npx prisma db seed
 }

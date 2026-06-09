@@ -11,7 +11,7 @@ export async function settlementsRoutes(fastify: FastifyInstance) {
     "/settlements",
     async (request, reply) => {
       const repo = getSettlementsRepository();
-      const settlements = repo.findAll();
+      const settlements = await repo.findAll();
       
       return {
         data: settlements,

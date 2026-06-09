@@ -1,48 +1,89 @@
 /**
  * @trace US-001
- * Mock settlements repository
+ * Prisma settlements repository
  */
 import { Settlement, SettlementStatus } from "@openkick/types";
+import { prisma } from "../lib/prisma.js";
 
-let settlements: Settlement[] = [];
+function mapPrismaCaseToSettlement(c: any): Settlement {
+  return {
+    id: c.id,
+    case_id: c.slug,
+    title: c.title,
+    slug: c.slug,
+    defendant: c.defendants,
+    category_id: c.category.slug,
+    deadline: c.claimDeadline?.toISOString() || "",
+    proof_needed: c.proofRequired === "yes",
+    award_type: c.awardRules,
+    status: c.status as SettlementStatus,
+    official_link: c.officialSiteUrl || "",
+    created_at: c.createdAt.toISOString(),
+    updated_at: c.updatedAt.toISOString(),
+  };
+}
 
 export function getSettlementsRepository() {
   return {
-    findAll(): Settlement[] {
-      return settlements;
+    async findAll(): Promise<Settlement[]> {
+      const cases = await prisma.case.findMany({
+        include: {
+          category: true,
+        },
+      });
+      return cases.map(mapPrismaCaseToSettlement);
     },
-    findById(id: string): Settlement | undefined {
-      return settlements.find((s) => s.id === id);
+    async findById(id: string): Promise<Settlement | undefined> {
+      const c = await prisma.case.findUnique({
+        where: { id },
+        include: {
+          category: true,
+        },
+      });
+      return c ? mapPrismaCaseToSettlement(c) : undefined;
     },
-    create(data: Omit<Settlement, "id" | "created_at" | "updated_at">): Settlement {
-      const settlement: Settlement = {
-        ...data,
-        id: crypto.randomUUID(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      settlements.push(settlement);
-      return settlement;
+    async findBySlug(slug: string): Promise<Settlement | undefined> {
+        const c = await prisma.case.findUnique({
+          where: { slug },
+          include: {
+            category: true,
+          },
+        });
+        return c ? mapPrismaCaseToSettlement(c) : undefined;
+      },
+    async create(data: Omit<Settlement, "id" | "created_at" | "updated_at">): Promise<Settlement> {
+      // Find category by slug
+      const category = await prisma.category.findUnique({
+        where: { slug: data.category_id }
+      });
+
+      if (!category) {
+        throw new Error(`Category ${data.category_id} not found`);
+      }
+
+      const c = await prisma.case.create({
+        data: {
+          slug: data.slug,
+          title: data.title,
+          defendants: data.defendant,
+          jurisdiction: "General", // Default
+          status: data.status,
+          claimDeadline: data.deadline ? new Date(data.deadline) : null,
+          proofRequired: data.proof_needed ? "yes" : "no",
+          awardRules: data.award_type,
+          officialSiteUrl: data.official_link,
+          categoryId: category.id,
+        },
+        include: {
+          category: true,
+        },
+      });
+      return mapPrismaCaseToSettlement(c);
     },
   };
 }
 
+// Keep seed function but make it a no-op as we use prisma db seed
 export function seedSettlements() {
-  settlements = [
-    {
-      id: "1",
-      case_id: "case-1",
-      title: "Example Settlement",
-      slug: "example-settlement",
-      defendant: "Example Corp",
-      category_id: "cat-1",
-      deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      proof_needed: true,
-      award_type: "cash",
-      status: "open" as SettlementStatus,
-      official_link: "https://example.com",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-  ];
+  // Database should be seeded via npx prisma db seed
 }

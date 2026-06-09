@@ -1,41 +1,89 @@
 /**
  * @trace US-095, US-096
- * Mock investments repository
+ * Prisma investments repository
  */
 import { Investment, InvestmentStatus } from "@openkick/types";
+import { prisma } from "../lib/prisma.js";
 
-let investments: Investment[] = [];
+function mapPrismaInvestmentToInvestment(i: any): Investment {
+  return {
+    id: i.id,
+    investor_id: i.userId,
+    offering_id: i.offeringId,
+    amount: i.amount,
+    fees: 0, // Not in schema yet, default 0
+    escrow_tx_id: i.transactionId || "",
+    status: i.status as InvestmentStatus,
+    created_at: i.createdAt.toISOString(),
+    settled_at: i.status === "settled" ? i.updatedAt.toISOString() : null,
+  };
+}
 
 export function getInvestmentsRepository() {
   return {
-    findByInvestorId(investorId: string): Investment[] {
-      return investments.filter((i) => i.investor_id === investorId);
+    async findByInvestorId(investorId: string): Promise<Investment[]> {
+      const investments = await prisma.investment.findMany({
+        where: { userId: investorId },
+      });
+      return investments.map(mapPrismaInvestmentToInvestment);
     },
-    findByOfferingId(offeringId: string): Investment[] {
-      return investments.filter((i) => i.offering_id === offeringId);
+    async findByOfferingId(offeringId: string): Promise<Investment[]> {
+      const investments = await prisma.investment.findMany({
+        where: { offeringId },
+      });
+      return investments.map(mapPrismaInvestmentToInvestment);
     },
-    create(data: Omit<Investment, "id" | "created_at" | "settled_at">): Investment {
-      const investment: Investment = {
-        ...data,
-        id: crypto.randomUUID(),
-        created_at: new Date().toISOString(),
-        settled_at: null,
-      };
-      investments.push(investment);
-      return investment;
-    },
-    updateStatus(id: string, status: InvestmentStatus): Investment | null {
-      const idx = investments.findIndex((i) => i.id === id);
-      if (idx === -1) return null;
-      investments[idx].status = status;
-      if (status === "settled") {
-        investments[idx].settled_at = new Date().toISOString();
+    async create(data: Omit<Investment, "id" | "created_at" | "settled_at">): Promise<Investment> {
+      const i = await prisma.investment.create({
+        data: {
+          offeringId: data.offering_id,
+          userId: data.investor_id,
+          amount: data.amount,
+          status: data.status,
+          transactionId: data.escrow_tx_id,
+        },
+      });
+
+      // Update offering raisedAmount
+      if (data.status === "settled") {
+          await prisma.offering.update({
+              where: { id: data.offering_id },
+              data: {
+                  raisedAmount: {
+                      increment: data.amount
+                  }
+              }
+          });
       }
-      return investments[idx];
+
+      return mapPrismaInvestmentToInvestment(i);
+    },
+    async updateStatus(id: string, status: InvestmentStatus): Promise<Investment | null> {
+      const existing = await prisma.investment.findUnique({ where: { id } });
+      if (!existing) return null;
+
+      const i = await prisma.investment.update({
+        where: { id },
+        data: { status },
+      });
+
+      // If status changed to settled, increment raisedAmount
+      if (status === "settled" && existing.status !== "settled") {
+            await prisma.offering.update({
+                where: { id: i.offeringId },
+                data: {
+                    raisedAmount: {
+                        increment: i.amount
+                    }
+                }
+            });
+      }
+
+      return mapPrismaInvestmentToInvestment(i);
     },
   };
 }
 
 export function seedInvestments() {
-  investments = [];
+  // Database should be seeded via npx prisma db seed
 }

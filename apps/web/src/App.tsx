@@ -16,6 +16,12 @@ import ActivismPortalPage from "./features/activism/pages/ActivismPortalPage";
 import LawyersPage from "./features/lawyers/pages/LawyersPage";
 import PrivacyPage from "./features/legal/pages/PrivacyPage";
 import TermsPage from "./features/legal/pages/TermsPage";
+import LoginPage from "./features/auth/pages/LoginPage";
+import SignupPage from "./features/auth/pages/SignupPage";
+import ConsumerDashboardPage from "./features/consumer/pages/ConsumerDashboardPage";
+import SettingsPage from "./features/consumer/pages/SettingsPage";
+import AttorneyDashboardPage from "./features/attorney/pages/AttorneyDashboardPage";
+import SettlementAdminPage from "./features/admin/pages/SettlementAdminPage";
 
 function App() {
   return (
@@ -28,6 +34,12 @@ function App() {
         <Route path="/invest" element={<InvestPage />} />
         <Route path="/invest/offerings/:id" element={<OfferingDetailPage />} />
         <Route path="/dashboard/investor" element={<InvestorDashboardPage />} />
+        <Route path="/dashboard/consumer" element={<ConsumerDashboardPage />} />
+        <Route path="/dashboard/attorney" element={<AttorneyDashboardPage />} />
+        <Route path="/dashboard/admin" element={<SettlementAdminPage />} />
+        <Route path="/settings/privacy" element={<SettingsPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/activism" element={<ActivismPortalPage />} />
         <Route path="/lawyers" element={<LawyersPage />} />

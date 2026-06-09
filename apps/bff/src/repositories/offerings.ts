@@ -1,91 +1,125 @@
 /**
  * @trace US-090..US-107
- * Mock offerings repository
+ * Prisma offerings repository
  */
 import { Offering, OfferingStatus, OfferingType, InstrumentType } from "@openkick/types";
+import { prisma } from "../lib/prisma.js";
 
-let offerings: Offering[] = [];
+function mapPrismaOfferingToOffering(o: any): Offering {
+  return {
+    id: o.id,
+    case_id: o.caseId,
+    issuer_id: o.issuerId,
+    title: o.title,
+    slug: o.slug,
+    category_id: o.category.slug,
+    type: o.type as OfferingType,
+    instrument: o.instrument as InstrumentType,
+    min_investment: o.minInvestment,
+    target_raise: o.targetRaise,
+    max_raise: o.maxRaise,
+    open_date: o.openDate?.toISOString() || null,
+    close_date: o.closeDate?.toISOString() || null,
+    status: o.status as OfferingStatus,
+    risk_disclosures: o.riskDisclosures || "",
+    summary: o.summary || "",
+    media_hero_url: o.mediaHeroUrl,
+    created_at: o.createdAt.toISOString(),
+    updated_at: o.updatedAt.toISOString(),
+  };
+}
 
 export function getOfferingsRepository() {
   return {
-    findAll(filters?: { status?: OfferingStatus; category_id?: string; min_investment?: number }): Offering[] {
-      let result = [...offerings];
+    async findAll(filters?: { status?: OfferingStatus; category_id?: string; min_investment?: number }): Promise<Offering[]> {
+      const where: any = {};
       if (filters?.status) {
-        result = result.filter((o) => o.status === filters.status);
+        where.status = filters.status;
       }
       if (filters?.category_id) {
-        result = result.filter((o) => o.category_id === filters.category_id);
+        where.category = { slug: filters.category_id };
       }
       if (filters?.min_investment !== undefined) {
-        result = result.filter((o) => o.min_investment <= (filters.min_investment || 0));
+        where.minInvestment = { lte: filters.min_investment };
       }
-      return result;
+
+      const offerings = await prisma.offering.findMany({
+        where,
+        include: {
+          category: true,
+        },
+      });
+      return offerings.map(mapPrismaOfferingToOffering);
     },
-    findById(id: string): Offering | undefined {
-      return offerings.find((o) => o.id === id);
+    async findById(id: string): Promise<Offering | undefined> {
+      const o = await prisma.offering.findUnique({
+        where: { id },
+        include: {
+          category: true,
+        },
+      });
+      return o ? mapPrismaOfferingToOffering(o) : undefined;
     },
-    create(data: Omit<Offering, "id" | "created_at" | "updated_at">): Offering {
-      const offering: Offering = {
-        ...data,
-        id: crypto.randomUUID(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      offerings.push(offering);
-      return offering;
+    async create(data: Omit<Offering, "id" | "created_at" | "updated_at">): Promise<Offering> {
+      const category = await prisma.category.findUnique({
+        where: { slug: data.category_id }
+      });
+
+      if (!category) {
+        throw new Error(`Category ${data.category_id} not found`);
+      }
+
+      const o = await prisma.offering.create({
+        data: {
+          caseId: data.case_id,
+          issuerId: data.issuer_id,
+          title: data.title,
+          slug: data.slug,
+          categoryId: category.id,
+          type: data.type,
+          instrument: data.instrument,
+          minInvestment: data.min_investment,
+          targetRaise: data.target_raise,
+          maxRaise: data.max_raise,
+          openDate: data.open_date ? new Date(data.open_date) : null,
+          closeDate: data.close_date ? new Date(data.close_date) : null,
+          status: data.status,
+          riskDisclosures: data.risk_disclosures,
+          summary: data.summary,
+          mediaHeroUrl: data.media_hero_url,
+        },
+        include: {
+          category: true,
+        },
+      });
+      return mapPrismaOfferingToOffering(o);
     },
-    update(id: string, updates: Partial<Offering>): Offering | null {
-      const idx = offerings.findIndex((o) => o.id === id);
-      if (idx === -1) return null;
-      offerings[idx] = { ...offerings[idx], ...updates, updated_at: new Date().toISOString() };
-      return offerings[idx];
+    async update(id: string, updates: Partial<Offering>): Promise<Offering | null> {
+      const data: any = { ...updates };
+      
+      // Handle special fields
+      if (updates.category_id) {
+        const category = await prisma.category.findUnique({
+          where: { slug: updates.category_id }
+        });
+        if (category) {
+          data.categoryId = category.id;
+          delete data.category_id;
+        }
+      }
+
+      const o = await prisma.offering.update({
+        where: { id },
+        data,
+        include: {
+          category: true,
+        },
+      });
+      return mapPrismaOfferingToOffering(o);
     },
   };
 }
 
 export function seedOfferings() {
-  offerings = [
-    {
-      id: "offering-1",
-      case_id: "case-1",
-      issuer_id: "issuer-1",
-      title: "Data Breach Class Action Funding",
-      slug: "data-breach-funding",
-      category_id: "cat-privacy",
-      type: "reg_cf" as OfferingType,
-      instrument: "rev_share" as InstrumentType,
-      min_investment: 100,
-      target_raise: 500000,
-      max_raise: 1000000,
-      open_date: new Date().toISOString(),
-      close_date: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-      status: "open" as OfferingStatus,
-      risk_disclosures: "Investment involves risk. Past performance not indicative of future results.",
-      summary: "Funding for class action lawsuit against major tech company for data breach.",
-      media_hero_url: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-    {
-      id: "offering-2",
-      case_id: "case-2",
-      issuer_id: "issuer-2",
-      title: "Employment Discrimination Case",
-      slug: "employment-discrimination",
-      category_id: "cat-employment",
-      type: "reg_d" as OfferingType,
-      instrument: "preferred_equity" as InstrumentType,
-      min_investment: 10000,
-      target_raise: 2000000,
-      max_raise: 5000000,
-      open_date: new Date().toISOString(),
-      close_date: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
-      status: "funded" as OfferingStatus,
-      risk_disclosures: "Accredited investors only. High risk investment.",
-      summary: "Seeking funding for employment discrimination class action.",
-      media_hero_url: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    },
-  ];
+  // Database should be seeded via npx prisma db seed
 }
