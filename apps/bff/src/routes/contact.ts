@@ -11,7 +11,7 @@ const contactSchema = z.object({
 });
 
 export async function contactRoutes(server: FastifyInstance) {
-  server.post("/contact", async (request, reply) => {
+  server.post("/contact", async (request, _reply) => {
     // In a real app, this would send an email or store in a DB
     // For now, we log it and return success to fulfill the user story
     const body = contactSchema.parse(request.body);

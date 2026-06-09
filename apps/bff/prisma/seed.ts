@@ -30,7 +30,7 @@ async function main() {
     },
   });
 
-  const automotive = await prisma.category.upsert({
+  await prisma.category.upsert({
     where: { slug: "automotive" },
     update: {},
     create: {

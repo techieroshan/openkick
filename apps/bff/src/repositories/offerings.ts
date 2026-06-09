@@ -5,7 +5,31 @@
 import { Offering, OfferingStatus, OfferingType, InstrumentType } from "@openkick/types";
 import { prisma } from "../lib/prisma.js";
 
-function mapPrismaOfferingToOffering(o: any): Offering {
+interface PrismaOfferingWithCategory {
+  id: string;
+  caseId: string;
+  issuerId: string;
+  title: string;
+  slug: string;
+  category: {
+    slug: string;
+  };
+  type: string;
+  instrument: string;
+  minInvestment: number;
+  targetRaise: number;
+  maxRaise: number;
+  openDate: Date | null;
+  closeDate: Date | null;
+  status: string;
+  riskDisclosures: string | null;
+  summary: string | null;
+  mediaHeroUrl: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+function mapPrismaOfferingToOffering(o: PrismaOfferingWithCategory): Offering {
   return {
     id: o.id,
     case_id: o.caseId,
@@ -32,7 +56,7 @@ function mapPrismaOfferingToOffering(o: any): Offering {
 export function getOfferingsRepository() {
   return {
     async findAll(filters?: { status?: OfferingStatus; category_id?: string; min_investment?: number }): Promise<Offering[]> {
-      const where: any = {};
+      const where: Record<string, unknown> = {};
       if (filters?.status) {
         where.status = filters.status;
       }
@@ -95,7 +119,7 @@ export function getOfferingsRepository() {
       return mapPrismaOfferingToOffering(o);
     },
     async update(id: string, updates: Partial<Offering>): Promise<Offering | null> {
-      const data: any = { ...updates };
+      const data: Record<string, unknown> = { ...updates };
       
       // Handle special fields
       if (updates.category_id) {

@@ -18,9 +18,9 @@ export async function investorsRoutes(fastify: FastifyInstance) {
     return investor;
   });
 
-  fastify.post<{ Body: { profile?: any; kyc_status?: KYCStatus; accreditation_status?: AccreditationStatus } }>(
+  fastify.post<{ Body: { profile?: Record<string, unknown>; kyc_status?: KYCStatus; accreditation_status?: AccreditationStatus } }>(
     "/investors",
-    async (request, reply) => {
+    async (request, _reply) => {
       const userId = (request.headers["x-user-id"] as string) || "user-1";
       const repo = getInvestorsRepository();
       const investor = await repo.createOrUpdate(userId, request.body);

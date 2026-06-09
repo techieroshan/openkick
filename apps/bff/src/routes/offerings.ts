@@ -9,9 +9,9 @@ import { Offering, OfferingStatus } from "@openkick/types";
 export async function offeringsRoutes(fastify: FastifyInstance) {
   fastify.get<{
     Querystring: { status?: OfferingStatus; category_id?: string; min_investment?: string; page?: string; per_page?: string; q?: string };
-  }>("/offerings", async (request, reply) => {
+  }>("/offerings", async (request, _reply) => {
     const repo = getOfferingsRepository();
-    const filters: any = {};
+    const filters: Record<string, unknown> = {};
     if (request.query.status) filters.status = request.query.status;
     if (request.query.category_id) filters.category_id = request.query.category_id;
     if (request.query.min_investment) filters.min_investment = Number(request.query.min_investment);
@@ -42,7 +42,7 @@ export async function offeringsRoutes(fastify: FastifyInstance) {
     };
   });
 
-  fastify.get<{ Params: { id: string } }>("/offerings/:id", async (request, reply) => {
+  fastify.get<{ Params: { id: string } }>("/offerings/:id", async (request, _reply) => {
     const repo = getOfferingsRepository();
     const offering = await repo.findById(request.params.id);
     if (!offering) {
@@ -51,16 +51,16 @@ export async function offeringsRoutes(fastify: FastifyInstance) {
     return offering;
   });
 
-  fastify.post<{ Body: Partial<Offering> }>("/offerings", async (request, reply) => {
+  fastify.post<{ Body: Partial<Offering> }>("/offerings", async (request, _reply) => {
     const repo = getOfferingsRepository();
     const offering = await repo.create({
       ...request.body,
       status: "draft",
-    } as any);
+    } as Omit<Offering, "id" | "created_at" | "updated_at">);
     return offering;
   });
 
-  fastify.patch<{ Params: { id: string }; Body: Partial<Offering> }>("/offerings/:id", async (request, reply) => {
+  fastify.patch<{ Params: { id: string }; Body: Partial<Offering> }>("/offerings/:id", async (request, _reply) => {
     const repo = getOfferingsRepository();
     const updated = await repo.update(request.params.id, request.body);
     if (!updated) {
@@ -69,7 +69,7 @@ export async function offeringsRoutes(fastify: FastifyInstance) {
     return updated;
   });
 
-  fastify.post<{ Params: { id: string } }>("/offerings/:id/publish", async (request, reply) => {
+  fastify.post<{ Params: { id: string } }>("/offerings/:id/publish", async (request, _reply) => {
     const repo = getOfferingsRepository();
     const updated = await repo.update(request.params.id, { status: "open" });
     if (!updated) {

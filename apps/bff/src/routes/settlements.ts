@@ -4,12 +4,11 @@
  */
 import { FastifyInstance } from "fastify";
 import { getSettlementsRepository } from "../repositories/settlements.js";
-import { Settlement } from "@openkick/types";
 
 export async function settlementsRoutes(fastify: FastifyInstance) {
   fastify.get<{ Querystring: { status?: string; page?: string; per_page?: string } }>(
     "/settlements",
-    async (request, reply) => {
+    async (_request, _reply) => {
       const repo = getSettlementsRepository();
       const settlements = await repo.findAll();
       
