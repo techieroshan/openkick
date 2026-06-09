@@ -3,16 +3,21 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 import "dotenv/config";
 
-const connectionString = `${process.env.DATABASE_URL}`;
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  console.error("DATABASE_URL is not set");
+  process.exit(1);
+}
 const pool = new pg.Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log("Seeding database...");
-
-  // Categories
-  const consumer = await prisma.category.upsert({
+  console.log("Seeding database start...");
+  try {
+    // Categories
+    console.log("Upserting consumer category...");
+    const consumer = await prisma.category.upsert({
     where: { slug: "consumer" },
     update: {},
     create: {
