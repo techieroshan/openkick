@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "../..",
+    "rootDir": "./src",
     "noEmit": false,
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -15,11 +15,7 @@
     "resolveJsonModule": true,
     "declaration": true,
     "declarationMap": true,
-    "baseUrl": ".",
-    "ignoreDeprecations": "5.0",
-    "paths": {
-      "@openkick/types": ["../../packages/types/src/index.ts"]
-    }
+    "ignoreDeprecations": "5.0"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

@@ -47,7 +47,7 @@ export default function Header() {
             to="/activism"
             data-testid="ok:nav:activism:click:US-021"
           >
-            Activism Portal
+            Activism
           </Link>
           <Link
             to="/contact"
@@ -55,18 +55,21 @@ export default function Header() {
           >
             Contact
           </Link>
-          <Link
-            to="/privacy"
-            data-testid="ok:nav:privacy:click:US-001"
-          >
-            Privacy
-          </Link>
-          <Link
-            to="/terms"
-            data-testid="ok:nav:terms:click:US-001"
-          >
-            Terms
-          </Link>
+          <div className="flex gap-2 border-l pl-3 ml-2 border-border">
+            <Link
+              to="/dashboard/consumer"
+              className="text-primary hover:underline text-sm font-semibold"
+            >
+              Portal
+            </Link>
+            <Link
+              to="/login"
+              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+              data-testid="ok:nav:login:click:US-004"
+            >
+              Login
+            </Link>
+          </div>
         </div>
       </nav>
     </header>

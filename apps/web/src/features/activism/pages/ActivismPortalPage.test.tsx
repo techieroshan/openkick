@@ -11,8 +11,8 @@ describe("ActivismPortalPage", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("heading", { name: /activism portal/i })).toBeInTheDocument();
-    expect(screen.getByText(/submit a potential class action to fund/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /start your intake/i })).toHaveAttribute("href", "/contact");
+    expect(screen.getByText(/activism portal/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /investigative intake/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /submit for investigation/i })).toBeInTheDocument();
   });
 });

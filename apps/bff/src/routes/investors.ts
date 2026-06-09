@@ -11,7 +11,7 @@ export async function investorsRoutes(fastify: FastifyInstance) {
     // Mock: assume user_id from auth header or default
     const userId = (request.headers["x-user-id"] as string) || "user-1";
     const repo = getInvestorsRepository();
-    const investor = repo.findByUserId(userId);
+    const investor = await repo.findByUserId(userId);
     if (!investor) {
       return reply.code(404).send({ error: "Investor profile not found" });
     }
@@ -23,7 +23,7 @@ export async function investorsRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       const userId = (request.headers["x-user-id"] as string) || "user-1";
       const repo = getInvestorsRepository();
-      const investor = repo.createOrUpdate(userId, request.body);
+      const investor = await repo.createOrUpdate(userId, request.body);
       return investor;
     }
   );
@@ -31,7 +31,7 @@ export async function investorsRoutes(fastify: FastifyInstance) {
   fastify.post<{ Body: { status: KYCStatus } }>("/investors/me/kyc", async (request, reply) => {
     const userId = (request.headers["x-user-id"] as string) || "user-1";
     const repo = getInvestorsRepository();
-    const updated = repo.updateKYC(userId, request.body.status);
+    const updated = await repo.updateKYC(userId, request.body.status);
     if (!updated) {
       return reply.code(404).send({ error: "Investor not found" });
     }
@@ -43,7 +43,7 @@ export async function investorsRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       const userId = (request.headers["x-user-id"] as string) || "user-1";
       const repo = getInvestorsRepository();
-      const updated = repo.updateAccreditation(userId, request.body.status, request.body.expires_at);
+      const updated = await repo.updateAccreditation(userId, request.body.status, request.body.expires_at);
       if (!updated) {
         return reply.code(404).send({ error: "Investor not found" });
       }

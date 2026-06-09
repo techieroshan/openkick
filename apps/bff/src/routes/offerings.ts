@@ -16,13 +16,13 @@ export async function offeringsRoutes(fastify: FastifyInstance) {
     if (request.query.category_id) filters.category_id = request.query.category_id;
     if (request.query.min_investment) filters.min_investment = Number(request.query.min_investment);
     
-    let offerings = repo.findAll(filters);
+    let offerings = await repo.findAll(filters);
     
     // Simple search
     if (request.query.q) {
       const q = request.query.q.toLowerCase();
       offerings = offerings.filter((o) => 
-        o.title.toLowerCase().includes(q) || o.summary.toLowerCase().includes(q)
+        o.title.toLowerCase().includes(q) || (o.summary && o.summary.toLowerCase().includes(q))
       );
     }
     
@@ -44,7 +44,7 @@ export async function offeringsRoutes(fastify: FastifyInstance) {
 
   fastify.get<{ Params: { id: string } }>("/offerings/:id", async (request, reply) => {
     const repo = getOfferingsRepository();
-    const offering = repo.findById(request.params.id);
+    const offering = await repo.findById(request.params.id);
     if (!offering) {
       return reply.code(404).send({ error: "Not found" });
     }
@@ -53,7 +53,7 @@ export async function offeringsRoutes(fastify: FastifyInstance) {
 
   fastify.post<{ Body: Partial<Offering> }>("/offerings", async (request, reply) => {
     const repo = getOfferingsRepository();
-    const offering = repo.create({
+    const offering = await repo.create({
       ...request.body,
       status: "draft",
     } as any);
@@ -62,7 +62,7 @@ export async function offeringsRoutes(fastify: FastifyInstance) {
 
   fastify.patch<{ Params: { id: string }; Body: Partial<Offering> }>("/offerings/:id", async (request, reply) => {
     const repo = getOfferingsRepository();
-    const updated = repo.update(request.params.id, request.body);
+    const updated = await repo.update(request.params.id, request.body);
     if (!updated) {
       return reply.code(404).send({ error: "Not found" });
     }
@@ -71,7 +71,7 @@ export async function offeringsRoutes(fastify: FastifyInstance) {
 
   fastify.post<{ Params: { id: string } }>("/offerings/:id/publish", async (request, reply) => {
     const repo = getOfferingsRepository();
-    const updated = repo.update(request.params.id, { status: "open" });
+    const updated = await repo.update(request.params.id, { status: "open" });
     if (!updated) {
       return reply.code(404).send({ error: "Not found" });
     }

@@ -16,7 +16,10 @@ interface ContactFormValues {
 }
 
 export default function ContactPage() {
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  
   const {
     register,
     handleSubmit,
@@ -26,15 +29,43 @@ export default function ContactPage() {
     defaultValues: { topic: "general" },
   });
 
-  const onSubmit = (data: ContactFormValues) => {
+  const onSubmit = async (data: ContactFormValues) => {
+    setSubmitting(true);
+    setError(null);
+    setSubmitted(null);
+
     const files = Array.from(data.attachments ?? []);
 
     if (files.some((file) => file.size > 5 * 1024 * 1024)) {
+      setError("One or more files exceed the 5MB size limit.");
+      setSubmitting(false);
       return;
     }
 
-    setSubmitted(true);
-    reset();
+    try {
+      const response = await fetch("/api/v1/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          organization: data.organization,
+          topic: data.topic,
+          message: data.message,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to submit contact form.");
+      
+      const result = await response.json();
+      setSubmitted(result.referenceId);
+      reset();
+    } catch (err) {
+      setError("Something went wrong. Please try again later.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -154,10 +185,20 @@ export default function ContactPage() {
             />
             <span className="text-xs text-muted-foreground">Up to 8 files, 5 MB each.</span>
           </label>
-          <button className="mt-6 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground" type="submit">
-            Send request
+          <button 
+            className="mt-6 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50" 
+            type="submit"
+            disabled={submitting}
+          >
+            {submitting ? "Sending..." : "Send request"}
           </button>
-          {submitted && <p className="mt-3 text-sm text-emerald-700">Thank you. Your request has been recorded for the support team.</p>}
+          {error && <p className="mt-3 text-sm text-rose-700">{error}</p>}
+          {submitted && (
+            <div className="mt-3 rounded-xl bg-emerald-50 p-4 border border-emerald-200">
+              <p className="text-sm text-emerald-800 font-medium">Thank you. Your request has been recorded.</p>
+              <p className="text-xs text-emerald-700 mt-1">Reference ID: <span className="font-mono font-bold">{submitted}</span></p>
+            </div>
+          )}
         </form>
       </div>
     </section>

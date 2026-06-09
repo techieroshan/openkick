@@ -14,13 +14,13 @@ export default function HomePage() {
         <article className="space-y-6">
           <p className="text-sm uppercase tracking-[0.25em] text-primary">OpenKick public portal</p>
           <h1 className="max-w-2xl text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-            Find claim-ready settlements, review eligibility, and follow investor opportunities with clarity.
+            Justice for all. Intelligence for counsel. Capital for cases.
           </h1>
           <p className="max-w-xl text-lg text-muted-foreground">
-            OpenKick combines settlement intelligence, claim guidance, and investor transparency in a single, accessible experience for consumers, counsel, and partners.
+            The multi-user platform for the class action ecosystem. Open settlements for consumers, verified leads for firms, and regulated offerings for investors.
           </p>
           <p className="max-w-xl text-base text-muted-foreground">
-            Every page is designed to help visitors understand what is happening, why it matters, and what action to take next without relying on placeholder language or generic marketing copy.
+            From eligibility checking to claim lockers and investigative intake, we provide the tools you need to navigate mass litigation with absolute confidence.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
@@ -36,6 +36,12 @@ export default function HomePage() {
               data-testid="ok:home:cta:eligibility:US-006"
             >
               Check eligibility
+            </Link>
+            <Link
+              to="/activism"
+              className="rounded-full border border-primary/20 bg-primary/5 px-5 py-3 text-sm font-semibold text-primary transition hover:bg-primary/10"
+            >
+              Start Investigation
             </Link>
           </div>
         </article>
@@ -61,20 +67,38 @@ export default function HomePage() {
           {
             title: "Settlement intelligence",
             body: "See open cases, deadlines, and proof requirements in clear, responsive views.",
+            link: "/cases"
           },
           {
             title: "Eligibility support",
             body: "Use the checker to understand notice language and next steps before you act.",
+            link: "/eligibility"
           },
           {
             title: "Investor transparency",
             body: "Review offerings, status, and documentation through a secure, public dashboard.",
+            link: "/invest"
+          },
+          {
+            title: "Investigative Intake",
+            body: "Submit potential class actions for investigation and find expert legal representation.",
+            link: "/activism"
+          },
+          {
+            title: "Lawyer Directory",
+            body: "Connect with verified plaintiff firms and consumer advocacy attorneys.",
+            link: "/lawyers"
+          },
+          {
+            title: "Account Locker",
+            body: "Securely store your claim IDs, receipts, and communication in one private vault.",
+            link: "/login"
           },
         ].map((card) => (
-          <article key={card.title} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <Link key={card.title} to={card.link} className="rounded-2xl border border-border bg-card p-5 shadow-sm hover:border-primary/30 transition block">
             <h2 className="text-xl font-semibold text-foreground">{card.title}</h2>
             <p className="mt-2 text-sm text-muted-foreground">{card.body}</p>
-          </article>
+          </Link>
         ))}
       </div>
     </section>

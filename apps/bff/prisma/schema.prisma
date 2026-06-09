@@ -1,0 +1,548 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserStatus {
+  active
+  suspended
+  deleted
+}
+
+model User {
+  id               String     @id @default(uuid()) @db.Uuid
+  email            String     @unique
+  emailVerifiedAt  DateTime?  @map("email_verified_at")
+  passwordHash     String?    @map("password_hash")
+  firstName        String?    @map("first_name")
+  lastName         String?    @map("last_name")
+  phone            String?
+  locale           String     @default("en")
+  twoFactorEnabled Boolean    @default(false) @map("two_factor_enabled")
+  twoFactorSecret  String?    @map("two_factor_secret")
+  status           UserStatus @default(active)
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
+
+  // Relations
+  userRoles         UserRole[]
+  eligibilityChecks EligibilityCheck[]
+  claimLockers      ClaimLocker[]
+  investigations    Investigation[]
+  consents          Consent[]
+  leads             Lead[]
+  firmReviews       FirmReview[]
+  notices           Notice[]
+  posts             Post[]
+  devices           Device[]
+  sessions          Session[]
+  investorProfile   InvestorProfile?
+  investments       Investment[]
+
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  userId String @map("user_id") @db.Uuid
+  roleId String @map("role_id") @db.Uuid
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model Permission {
+  id          String  @id @default(uuid()) @db.Uuid
+  code        String  @unique
+  description String?
+
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String @map("role_id") @db.Uuid
+  permissionId String @map("permission_id") @db.Uuid
+
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model Category {
+  id          String  @id @default(uuid()) @db.Uuid
+  slug        String  @unique
+  name        String
+  description String?
+  parentId    String? @map("parent_id") @db.Uuid
+
+  parent   Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryToCategory")
+
+  cases          Case[]
+  investigations Investigation[]
+  firmPractice   FirmPracticeArea[]
+  posts          PostCategory[]
+  offerings      Offering[]
+
+  @@map("categories")
+}
+
+enum CaseStatus {
+  open
+  pending
+  closed
+  paid
+}
+
+enum ProofRequired {
+  yes
+  no
+  unknown
+}
+
+model Case {
+  id                   String        @id @default(uuid()) @db.Uuid
+  slug                 String        @unique
+  title                String
+  defendants           String
+  companies            Json? // Array of company ids and names
+  jurisdiction         String
+  court                String?
+  docketNumber         String?       @map("docket_number")
+  status               CaseStatus    @default(open)
+  categoryId           String        @map("category_id") @db.Uuid
+  officialSiteUrl      String?       @map("official_site_url")
+  administratorName    String?       @map("administrator_name")
+  administratorContact Json?         @map("administrator_contact")
+  optOutDeadline       DateTime?     @map("opt_out_deadline")
+  claimDeadline        DateTime?     @map("claim_deadline")
+  proofRequired        ProofRequired @default(unknown) @map("proof_required")
+  awardRules           String?       @map("award_rules")
+  notes                String?
+  seoTitle             String?       @map("seo_title")
+  seoDescription       String?       @map("seo_description")
+  publishedAt          DateTime?     @map("published_at")
+  createdAt            DateTime      @default(now()) @map("created_at")
+  updatedAt            DateTime      @updatedAt @map("updated_at")
+
+  category       Category           @relation(fields: [categoryId], references: [id])
+  notices        Notice[]
+  eligibility    EligibilityCheck[]
+  lockers        ClaimLocker[]
+  leads          Lead[]
+  classDefs      ClassDefinition[]
+  adminCampaigns AdminCampaign[]
+  offerings      Offering[]
+
+  @@map("cases")
+}
+
+model ClassDefinition {
+  id          String    @id @default(uuid()) @db.Uuid
+  caseId      String    @map("case_id") @db.Uuid
+  description String
+  periodStart DateTime? @map("period_start")
+  periodEnd   DateTime? @map("period_end")
+  geography   String?
+  exclusions  String?
+
+  case Case @relation(fields: [caseId], references: [id])
+
+  @@map("class_definitions")
+}
+
+model Notice {
+  id                   String   @id @default(uuid()) @db.Uuid
+  caseId               String   @map("case_id") @db.Uuid
+  source               String // enum: pdf, url, text
+  url                  String?
+  fileId               String?  @map("file_id") @db.Uuid
+  extractedText        String?  @map("extracted_text")
+  extractionConfidence Float?   @map("extraction_confidence")
+  uploadedById         String?  @map("uploaded_by") @db.Uuid
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  case        Case               @relation(fields: [caseId], references: [id])
+  uploadedBy  User?              @relation(fields: [uploadedById], references: [id])
+  eligibility EligibilityCheck[]
+
+  @@map("notices")
+}
+
+model EligibilityCheck {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String?  @map("user_id") @db.Uuid
+  caseId     String   @map("case_id") @db.Uuid
+  inputType  String   @map("input_type") // enum: pasted_text, pdf, notice_link, qa
+  noticeId   String?  @map("notice_id") @db.Uuid
+  qaAnswers  Json?    @map("qa_answers")
+  result     String // enum: eligible, maybe, not_eligible
+  reasons    String?
+  confidence Float?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user   User?   @relation(fields: [userId], references: [id])
+  case   Case    @relation(fields: [caseId], references: [id])
+  notice Notice? @relation(fields: [noticeId], references: [id])
+
+  @@map("eligibility_checks")
+}
+
+model ClaimLocker {
+  id                  String    @id @default(uuid()) @db.Uuid
+  userId              String    @map("user_id") @db.Uuid
+  caseId              String    @map("case_id") @db.Uuid
+  claimId             String?   @map("claim_id")
+  portalUrl           String?   @map("portal_url")
+  passwordHint        String?   @map("password_hint")
+  expectedPaymentDate DateTime? @map("expected_payment_date")
+  payoutAmount        Decimal?  @map("payout_amount") @db.Decimal(12, 2)
+  status              String // enum: planned, submitted, paid, cancelled
+  reminders           Json?
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+  case Case @relation(fields: [caseId], references: [id])
+
+  @@map("claim_lockers")
+}
+
+model Investigation {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  issueCategoryId String   @map("issue_category_id") @db.Uuid
+  title           String
+  description     String
+  state           String
+  timePeriod      String?  @map("time_period")
+  defendants      String?
+  status          String   @default("submitted") // enum: submitted, under_review, routed, closed, withdrawn
+  privacyMode     String   @default("anonymous") @map("privacy_mode") // enum: anonymous, masked, open
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user     User     @relation(fields: [userId], references: [id])
+  category Category @relation(fields: [issueCategoryId], references: [id])
+  leads    Lead[]
+
+  @@map("investigations")
+}
+
+model Firm {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String
+  website    String?
+  nacaMember Boolean  @default(false) @map("naca_member")
+  address    Json?
+  contact    Json?
+  crmConfig  Json?    @map("crm_config")
+  verified   Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  practiceAreas FirmPracticeArea[]
+  jurisdictions FirmJurisdiction[]
+  campaigns     FirmCampaign[]
+  leads         Lead[]
+  firmReviews   FirmReview[]
+
+  @@map("firms")
+}
+
+model FirmPracticeArea {
+  firmId     String @map("firm_id") @db.Uuid
+  categoryId String @map("category_id") @db.Uuid
+
+  firm     Firm     @relation(fields: [firmId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@id([firmId, categoryId])
+  @@map("firm_practice_areas")
+}
+
+model FirmJurisdiction {
+  firmId    String  @map("firm_id") @db.Uuid
+  state     String
+  barNumber String? @map("bar_number")
+
+  firm Firm @relation(fields: [firmId], references: [id])
+
+  @@id([firmId, state])
+  @@map("firm_jurisdictions")
+}
+
+model FirmCampaign {
+  id           String   @id @default(uuid()) @db.Uuid
+  firmId       String   @map("firm_id") @db.Uuid
+  name         String
+  categories   Json
+  states       Json
+  dailyCap     Int      @map("daily_cap")
+  monthlyCap   Int      @map("monthly_cap")
+  status       String   @default("active") // enum: active, paused, ended
+  pricingModel String   @map("pricing_model")
+  price        Decimal? @db.Decimal(12, 2)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  firm Firm @relation(fields: [firmId], references: [id])
+
+  @@map("firm_campaigns")
+}
+
+model Consent {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  subjectType  String   @map("subject_type") // enum: investigation, case, firm, marketing
+  subjectId    String?  @map("subject_id") @db.Uuid
+  channel      String // enum: phone, sms, email
+  firmId       String?  @map("firm_id") @db.Uuid
+  textSnapshot String   @map("text_snapshot")
+  ip           String?
+  userAgent    String?  @map("user_agent")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user  User   @relation(fields: [userId], references: [id])
+  leads Lead[]
+
+  @@map("consents")
+}
+
+model Lead {
+  id              String    @id @default(uuid()) @db.Uuid
+  investigationId String?   @map("investigation_id") @db.Uuid
+  caseId          String?   @map("case_id") @db.Uuid
+  firmId          String    @map("firm_id") @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  status          String    @default("sent")
+  payload         Json
+  consentId       String    @map("consent_id") @db.Uuid
+  deliveredAt     DateTime? @map("delivered_at")
+  lastStatusAt    DateTime  @default(now()) @map("last_status_at")
+
+  investigation Investigation? @relation(fields: [investigationId], references: [id])
+  case          Case?          @relation(fields: [caseId], references: [id])
+  firm          Firm           @relation(fields: [firmId], references: [id])
+  user          User           @relation(fields: [userId], references: [id])
+  consent       Consent        @relation(fields: [consentId], references: [id])
+
+  @@map("leads")
+}
+
+model AdminCampaign {
+  id        String   @id @default(uuid()) @db.Uuid
+  caseId    String   @map("case_id") @db.Uuid
+  name      String
+  startDate DateTime @map("start_date")
+  endDate   DateTime @map("end_date")
+  targeting Json
+  budget    Decimal? @db.Decimal(12, 2)
+  status    String   @default("active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  case Case @relation(fields: [caseId], references: [id])
+
+  @@map("admin_campaigns")
+}
+
+model FirmReview {
+  id        String   @id @default(uuid()) @db.Uuid
+  firmId    String   @map("firm_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  rating    Int
+  title     String?
+  body      String?
+  status    String   @default("pending")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  firm Firm @relation(fields: [firmId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("firm_reviews")
+}
+
+model Post {
+  id             String    @id @default(uuid()) @db.Uuid
+  slug           String    @unique
+  title          String
+  body           String
+  type           String // enum: news, guide, spotlight
+  status         String    @default("draft")
+  scheduledAt    DateTime? @map("scheduled_at")
+  publishedAt    DateTime? @map("published_at")
+  authorId       String    @map("author_id") @db.Uuid
+  seoTitle       String?   @map("seo_title")
+  seoDescription String?   @map("seo_description")
+  ogImageUrl     String?   @map("og_image_url")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  author     User           @relation(fields: [authorId], references: [id])
+  categories PostCategory[]
+
+  @@map("posts")
+}
+
+model PostCategory {
+  postId     String @map("post_id") @db.Uuid
+  categoryId String @map("category_id") @db.Uuid
+
+  post     Post     @relation(fields: [postId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@id([postId, categoryId])
+  @@map("post_categories")
+}
+
+model Device {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String?  @map("user_id") @db.Uuid
+  fingerprint String
+  lastIp      String?  @map("last_ip")
+  lastSeen    DateTime @default(now()) @map("last_seen")
+
+  user     User?     @relation(fields: [userId], references: [id])
+  sessions Session[]
+
+  @@map("devices")
+}
+
+model Session {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  deviceId  String    @map("device_id") @db.Uuid
+  ip        String?
+  startedAt DateTime  @default(now()) @map("started_at")
+  endedAt   DateTime? @map("ended_at")
+
+  user   User   @relation(fields: [userId], references: [id])
+  device Device @relation(fields: [deviceId], references: [id])
+
+  @@map("sessions")
+}
+
+enum OfferingStatus {
+  draft
+  compliance_review
+  open
+  funded
+  closed
+  cancelled
+}
+
+enum OfferingType {
+  reg_cf
+  reg_d
+  reg_a
+}
+
+enum InstrumentType {
+  rev_share
+  preferred_equity
+  convertible_note
+  equity
+}
+
+model Offering {
+  id              String         @id @default(uuid()) @db.Uuid
+  caseId          String         @map("case_id") @db.Uuid
+  issuerId        String         @map("issuer_id") @db.Uuid
+  title           String
+  slug            String         @unique
+  categoryId      String         @map("category_id") @db.Uuid
+  type            OfferingType
+  instrument      InstrumentType
+  minInvestment   Float          @map("min_investment")
+  targetRaise     Float          @map("target_raise")
+  maxRaise        Float          @map("max_raise")
+  raisedAmount    Float          @default(0) @map("raised_amount")
+  openDate        DateTime?      @map("open_date")
+  closeDate       DateTime?      @map("close_date")
+  status          OfferingStatus @default(draft)
+  riskDisclosures String?        @map("risk_disclosures")
+  summary         String?
+  mediaHeroUrl    String?        @map("media_hero_url")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  case        Case           @relation(fields: [caseId], references: [id])
+  category    Category       @relation(fields: [categoryId], references: [id])
+  investments Investment[]
+  updates     OfferingUpdate[]
+
+  @@map("offerings")
+}
+
+model InvestorProfile {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @unique @map("user_id") @db.Uuid
+  taxId           String?   @map("tax_id")
+  dateOfBirth     DateTime? @map("date_of_birth")
+  phone           String?
+  address         String?
+  kycStatus       String    @default("not_started") @map("kyc_status") 
+  isAccredited    Boolean   @default(false) @map("is_accredited")
+  accreditedExpiry DateTime? @map("accredited_expiry")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("investor_profiles")
+}
+
+model Investment {
+  id              String   @id @default(uuid()) @db.Uuid
+  offeringId      String   @map("offering_id") @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  amount          Float
+  status          String   @default("pending")
+  transactionId   String?  @map("transaction_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  offering Offering @relation(fields: [offeringId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@map("investments")
+}
+
+model OfferingUpdate {
+  id         String   @id @default(uuid()) @db.Uuid
+  offeringId String   @map("offering_id") @db.Uuid
+  title      String
+  content    String
+  isPublic   Boolean  @default(false) @map("is_public")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  offering Offering @relation(fields: [offeringId], references: [id])
+
+  @@map("offering_updates")
+}
