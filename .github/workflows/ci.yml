@@ -15,6 +15,11 @@ jobs:
           node-version: 22
           cache: "pnpm"
       - run: pnpm install --frozen-lockfile
+      - name: Build shared packages
+        run: pnpm --filter @openkick/types build
+      - name: Generate Prisma Client
+        working-directory: apps/bff
+        run: pnpm prisma generate
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm build:ac

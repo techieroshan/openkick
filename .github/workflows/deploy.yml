@@ -29,6 +29,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build shared packages and Generate Prisma
+        run: |
+          pnpm --filter @openkick/types build
+          cd apps/bff && pnpm prisma generate
+
       - name: Verify deployment secrets
         run: |
           for name in DEPLOY_HOST DEPLOY_USER DEPLOY_SSH_KEY; do
