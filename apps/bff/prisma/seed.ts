@@ -117,6 +117,52 @@ async function main() {
     },
   });
 
+  const offeringCase = await prisma.case.findUnique({
+    where: { slug: "vehicle-fuel-economy" },
+  });
+
+  if (offeringCase) {
+    await prisma.offering.upsert({
+      where: { slug: "fuel-economy-recovery-fund" },
+      update: {},
+      create: {
+        slug: "fuel-economy-recovery-fund",
+        title: "Fuel Economy Recovery Fund",
+        caseId: offeringCase.id,
+        issuerId: "00000000-0000-0000-0000-000000000000", // System or placeholder
+        categoryId: consumer.id,
+        type: "litigation_fund",
+        instrument: "revenue_share",
+        minInvestment: 500,
+        targetRaise: 100000,
+        maxRaise: 500000,
+        status: "open",
+        summary: "Invest in the recovery of damages for fuel economy fraud.",
+        mediaHeroUrl: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?q=80&w=2072&auto=format&fit=crop",
+      },
+    });
+
+    await prisma.offering.upsert({
+      where: { slug: "data-privacy-litigation-alpha" },
+      update: {},
+      create: {
+        slug: "data-privacy-litigation-alpha",
+        title: "Data Privacy Litigation Alpha",
+        caseId: offeringCase.id, // Reusing for seed
+        issuerId: "00000000-0000-0000-0000-000000000000",
+        categoryId: privacy.id,
+        type: "litigation_fund",
+        instrument: "equity",
+        minInvestment: 1000,
+        targetRaise: 250000,
+        maxRaise: 1000000,
+        status: "open",
+        summary: "Support legal action against major tech data breaches.",
+        mediaHeroUrl: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop",
+      },
+    });
+  }
+
   console.log("Seeding completed.");
 }
 
