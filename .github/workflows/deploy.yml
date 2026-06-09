@@ -32,7 +32,7 @@ jobs:
       - name: Build shared packages and Generate Prisma
         run: |
           pnpm --filter @openkick/types build
-          cd apps/bff && pnpm prisma generate
+          cd apps/bff && DATABASE_URL="postgresql://user:pass@localhost:5432/db" pnpm prisma generate
 
       - name: Verify deployment secrets
         run: |
