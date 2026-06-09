@@ -159,6 +159,8 @@ model Case {
   adminCampaigns AdminCampaign[]
   offerings      Offering[]
 
+  @@index([status])
+  @@index([categoryId])
   @@map("cases")
 }
 
@@ -500,6 +502,9 @@ model Offering {
   updates     OfferingUpdate[]
   distributions Distribution[]
 
+  @@index([status])
+  @@index([categoryId])
+  @@index([caseId])
   @@map("offerings")
 }
 
@@ -534,6 +539,8 @@ model Investment {
   offering Offering @relation(fields: [offeringId], references: [id])
   user     User     @relation(fields: [userId], references: [id])
 
+  @@index([offeringId])
+  @@index([userId])
   @@map("investments")
 }
 

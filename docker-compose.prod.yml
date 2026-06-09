@@ -28,6 +28,11 @@ services:
     expose:
       - "3000"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   web:
     build:
@@ -35,7 +40,7 @@ services:
       dockerfile: docker/web.Dockerfile
     depends_on:
       bff:
-        condition: service_started
+        condition: service_healthy
     ports:
       - "11701:80"
     restart: unless-stopped
