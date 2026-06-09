@@ -1,11 +1,30 @@
 services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: openkick
+      POSTGRES_PASSWORD: openkick_password
+      POSTGRES_DB: openkick
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openkick"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   bff:
     build:
       context: .
       dockerfile: docker/bff.Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       NODE_ENV: production
       PORT: 8787
+      DATABASE_URL: postgresql://openkick:openkick_password@db:5432/openkick?schema=public
     expose:
       - "8787"
     restart: unless-stopped
@@ -19,3 +38,6 @@ services:
     ports:
       - "11701:80"
     restart: unless-stopped
+
+volumes:
+  postgres_data:

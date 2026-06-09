@@ -11,8 +11,8 @@ describe("LawyersPage", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("heading", { name: /find a lawyer/i })).toBeInTheDocument();
-    expect(screen.getAllByText(/report possible class action matters/i).length).toBeGreaterThan(0);
-    expect(screen.getByRole("link", { name: /submit a claim support request/i })).toHaveAttribute("href", "/contact");
+    expect(screen.getByText(/find a lawyer/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /report harm and find/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /start secure intake/i })).toHaveAttribute("href", "/contact");
   });
 });

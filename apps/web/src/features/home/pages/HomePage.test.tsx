@@ -12,8 +12,7 @@ describe("HomePage", () => {
     );
 
     expect(screen.getByTestId("ok:home:page:root:US-001")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /find claim-ready settlements/i })).toBeInTheDocument();
-    expect(screen.getAllByText(/find claim-ready settlements/i).length).toBeGreaterThan(0);
+    expect(screen.getByRole("heading", { name: /justice for all/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /browse settlements/i })).toHaveAttribute("href", "/cases");
   });
 });
