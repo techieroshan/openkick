@@ -496,6 +496,7 @@ model Offering {
   category    Category       @relation(fields: [categoryId], references: [id])
   investments Investment[]
   updates     OfferingUpdate[]
+  distributions Distribution[]
 
   @@map("offerings")
 }
@@ -545,4 +546,17 @@ model OfferingUpdate {
   offering Offering @relation(fields: [offeringId], references: [id])
 
   @@map("offering_updates")
+}
+
+model Distribution {
+  id              String   @id @default(uuid()) @db.Uuid
+  offeringId      String   @map("offering_id") @db.Uuid
+  amount          Float
+  distributionDate DateTime @map("distribution_date")
+  description     String?
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  offering Offering @relation(fields: [offeringId], references: [id])
+
+  @@map("distributions")
 }

@@ -5,7 +5,24 @@
 import { Settlement, SettlementStatus } from "@openkick/types";
 import { prisma } from "../lib/prisma.js";
 
-function mapPrismaCaseToSettlement(c: any): Settlement {
+interface PrismaCaseWithCategory {
+  id: string;
+  slug: string;
+  title: string;
+  defendants: string;
+  category: {
+    slug: string;
+  };
+  claimDeadline: Date | null;
+  proofRequired: string;
+  awardRules: string;
+  status: string;
+  officialSiteUrl: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+function mapPrismaCaseToSettlement(c: PrismaCaseWithCategory): Settlement {
   return {
     id: c.id,
     case_id: c.slug,

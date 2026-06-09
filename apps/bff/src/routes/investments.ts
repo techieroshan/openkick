@@ -5,10 +5,9 @@
 import { FastifyInstance } from "fastify";
 import { getInvestmentsRepository } from "../repositories/investments.js";
 import { getInvestorsRepository } from "../repositories/investors.js";
-import { InvestmentStatus } from "@openkick/types";
 
 export async function investmentsRoutes(fastify: FastifyInstance) {
-  fastify.get("/investments", async (request, reply) => {
+  fastify.get("/investments", async (request, _reply) => {
     const userId = (request.headers["x-user-id"] as string) || "user-1";
     const investorRepo = getInvestorsRepository();
     const investor = await investorRepo.findByUserId(userId);

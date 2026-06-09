@@ -5,7 +5,25 @@
 import { Investor, KYCStatus, AccreditationStatus } from "@openkick/types";
 import { prisma } from "../lib/prisma.js";
 
-function mapPrismaInvestorToInvestor(p: any): Investor {
+interface PrismaInvestorWithUser {
+  id: string;
+  userId: string;
+  user: {
+    firstName: string;
+    lastName: string;
+  };
+  address: string | null;
+  dateOfBirth: Date | null;
+  phone: string | null;
+  taxId: string | null;
+  kycStatus: string;
+  isAccredited: boolean;
+  accreditedExpiry: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+function mapPrismaInvestorToInvestor(p: PrismaInvestorWithUser): Investor {
   return {
     id: p.id,
     user_id: p.userId,
@@ -39,7 +57,7 @@ export function getInvestorsRepository() {
             include: { user: true }
         });
 
-        const profileData: any = {};
+        const profileData: Record<string, unknown> = {};
         if (data.profile) {
             if (data.profile.address) profileData.address = data.profile.address;
             if (data.profile.dob) profileData.dateOfBirth = new Date(data.profile.dob);

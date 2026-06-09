@@ -4,8 +4,9 @@
  */
 import { Investment, InvestmentStatus } from "@openkick/types";
 import { prisma } from "../lib/prisma.js";
+import { Investment as PrismaInvestment } from "@prisma/client";
 
-function mapPrismaInvestmentToInvestment(i: any): Investment {
+function mapPrismaInvestmentToInvestment(i: PrismaInvestment): Investment {
   return {
     id: i.id,
     investor_id: i.userId,
