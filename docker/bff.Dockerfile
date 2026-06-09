@@ -16,6 +16,7 @@ RUN pnpm --filter @openkick/bff exec prisma generate && \
     pnpm --filter @openkick/bff build
 
 FROM node:20-alpine
+RUN apk add --no-cache curl
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8787
@@ -28,6 +29,9 @@ COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/apps/bff/node_modules /app/apps/bff/node_modules
 COPY --from=build /app/apps/bff/dist /app/apps/bff/dist
 COPY --from=build /app/apps/bff/prisma /app/apps/bff/prisma
+COPY --from=build /app/apps/bff/prisma.config.ts /app/apps/bff/prisma.config.ts
+COPY --from=build /app/apps/bff/prisma/seed.ts /app/apps/bff/prisma/seed.ts
+RUN npm install -g pnpm@9.15.0 tsx
 
 EXPOSE 8787
-CMD ["sh", "-c", "npx prisma migrate deploy && node apps/bff/dist/server.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && pnpm --filter @openkick/bff prisma db seed && node apps/bff/dist/server.js"]
