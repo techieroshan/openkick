@@ -41,14 +41,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = (email: string, password: string, role: UserRole) => {
-    const authData: AuthUser = { email, role };
+  const login = (_email: string, _password: string, role: UserRole) => {
+    const authData: AuthUser = { email: _email, role };
     localStorage.setItem("ok_auth", JSON.stringify(authData));
     setUser(authData);
   };
 
-  const signup = (email: string, password: string, role: UserRole) => {
-    const authData: AuthUser = { email, role };
+  const signup = (_email: string, _password: string, role: UserRole) => {
+    const authData: AuthUser = { email: _email, role };
     localStorage.setItem("ok_auth", JSON.stringify(authData));
     setUser(authData);
   };
