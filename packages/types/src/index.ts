@@ -89,8 +89,8 @@ export interface Offering {
   open_date: string | null;
   close_date: string | null;
   status: OfferingStatus;
-  risk_disclosures: string;
-  summary: string;
+  risk_disclosures: string | null;
+  summary: string | null;
   media_hero_url: string | null;
   created_at: string;
   updated_at: string;

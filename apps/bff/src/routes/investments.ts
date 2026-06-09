@@ -12,7 +12,7 @@ export async function investmentsRoutes(fastify: FastifyInstance) {
     const investorRepo = getInvestorsRepository();
     const investor = await investorRepo.findByUserId(userId);
     if (!investor) {
-      return reply.code(404).send({ error: "Investor not found" });
+      return _reply.code(404).send({ error: "Investor not found" });
     }
     const repo = getInvestmentsRepository();
     const investments = await repo.findByInvestorId(investor.id);

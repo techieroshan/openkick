@@ -46,7 +46,7 @@ export async function offeringsRoutes(fastify: FastifyInstance) {
     const repo = getOfferingsRepository();
     const offering = await repo.findById(request.params.id);
     if (!offering) {
-      return reply.code(404).send({ error: "Not found" });
+      return _reply.code(404).send({ error: "Not found" });
     }
     return offering;
   });
@@ -64,7 +64,7 @@ export async function offeringsRoutes(fastify: FastifyInstance) {
     const repo = getOfferingsRepository();
     const updated = await repo.update(request.params.id, request.body);
     if (!updated) {
-      return reply.code(404).send({ error: "Not found" });
+      return _reply.code(404).send({ error: "Not found" });
     }
     return updated;
   });
@@ -73,7 +73,7 @@ export async function offeringsRoutes(fastify: FastifyInstance) {
     const repo = getOfferingsRepository();
     const updated = await repo.update(request.params.id, { status: "open" });
     if (!updated) {
-      return reply.code(404).send({ error: "Not found" });
+      return _reply.code(404).send({ error: "Not found" });
     }
     return updated;
   });

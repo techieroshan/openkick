@@ -73,7 +73,7 @@ export function getOfferingsRepository() {
           category: true,
         },
       });
-      return offerings.map(mapPrismaOfferingToOffering);
+      return offerings.map((o) => mapPrismaOfferingToOffering(o as any));
     },
     async findById(id: string): Promise<Offering | undefined> {
       const o = await prisma.offering.findUnique({
@@ -82,7 +82,7 @@ export function getOfferingsRepository() {
           category: true,
         },
       });
-      return o ? mapPrismaOfferingToOffering(o) : undefined;
+      return o ? mapPrismaOfferingToOffering(o as any) : undefined;
     },
     async create(data: Omit<Offering, "id" | "created_at" | "updated_at">): Promise<Offering> {
       const category = await prisma.category.findUnique({
@@ -95,28 +95,28 @@ export function getOfferingsRepository() {
 
       const o = await prisma.offering.create({
         data: {
-          caseId: data.case_id,
-          issuerId: data.issuer_id,
-          title: data.title,
-          slug: data.slug,
+          caseId: data.case_id as any,
+          issuerId: data.issuer_id as any,
+          title: data.title as any,
+          slug: data.slug as any,
           categoryId: category.id,
-          type: data.type,
-          instrument: data.instrument,
+          type: data.type as any,
+          instrument: data.instrument as any,
           minInvestment: data.min_investment,
           targetRaise: data.target_raise,
           maxRaise: data.max_raise,
           openDate: data.open_date ? new Date(data.open_date) : null,
           closeDate: data.close_date ? new Date(data.close_date) : null,
-          status: data.status,
-          riskDisclosures: data.risk_disclosures,
-          summary: data.summary,
-          mediaHeroUrl: data.media_hero_url,
+          status: data.status as any,
+          riskDisclosures: data.risk_disclosures || null,
+          summary: data.summary || null,
+          mediaHeroUrl: data.media_hero_url || null,
         },
         include: {
           category: true,
         },
       });
-      return mapPrismaOfferingToOffering(o);
+      return mapPrismaOfferingToOffering(o as any);
     },
     async update(id: string, updates: Partial<Offering>): Promise<Offering | null> {
       const data: Record<string, unknown> = { ...updates };
@@ -134,12 +134,12 @@ export function getOfferingsRepository() {
 
       const o = await prisma.offering.update({
         where: { id },
-        data,
+        data: data as any,
         include: {
           category: true,
         },
       });
-      return mapPrismaOfferingToOffering(o);
+      return mapPrismaOfferingToOffering(o as any);
     },
   };
 }

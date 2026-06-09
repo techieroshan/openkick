@@ -28,6 +28,12 @@ export function getInvestmentsRepository() {
       });
       return investments.map(mapPrismaInvestmentToInvestment);
     },
+    async findById(id: string): Promise<Investment | null> {
+      const i = await prisma.investment.findUnique({
+        where: { id },
+      });
+      return i ? mapPrismaInvestmentToInvestment(i) : null;
+    },
     async findByOfferingId(offeringId: string): Promise<Investment[]> {
       const investments = await prisma.investment.findMany({
         where: { offeringId },

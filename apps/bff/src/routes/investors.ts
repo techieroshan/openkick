@@ -23,7 +23,7 @@ export async function investorsRoutes(fastify: FastifyInstance) {
     async (request, _reply) => {
       const userId = (request.headers["x-user-id"] as string) || "user-1";
       const repo = getInvestorsRepository();
-      const investor = await repo.createOrUpdate(userId, request.body);
+      const investor = await repo.createOrUpdate(userId, request.body as any);
       return investor;
     }
   );

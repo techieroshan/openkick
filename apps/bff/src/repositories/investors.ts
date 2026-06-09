@@ -104,13 +104,6 @@ export function getInvestorsRepository() {
             include: { user: true }
         });
         return p ? mapPrismaInvestorToInvestor(p as any) : null;
-    }, 
-                isAccredited: status === "approved",
-                accreditedExpiry: expiresAt ? new Date(expiresAt) : null
-            },
-            include: { user: true }
-        });
-        return p ? mapPrismaInvestorToInvestor(p) : null;
     },
   };
 }

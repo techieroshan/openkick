@@ -15,7 +15,7 @@ interface PrismaCaseWithCategory {
   };
   claimDeadline: Date | null;
   proofRequired: string;
-  awardRules: string;
+  awardRules: string | null;
   status: string;
   officialSiteUrl: string | null;
   createdAt: Date;
@@ -32,7 +32,7 @@ function mapPrismaCaseToSettlement(c: PrismaCaseWithCategory): Settlement {
     category_id: c.category.slug,
     deadline: c.claimDeadline?.toISOString() || "",
     proof_needed: c.proofRequired === "yes",
-    award_type: c.awardRules,
+    award_type: c.awardRules || "",
     status: c.status as SettlementStatus,
     official_link: c.officialSiteUrl || "",
     created_at: c.createdAt.toISOString(),
@@ -48,7 +48,7 @@ export function getSettlementsRepository() {
           category: true,
         },
       });
-      return cases.map(mapPrismaCaseToSettlement);
+      return (cases as any).map(mapPrismaCaseToSettlement);
     },
     async findById(id: string): Promise<Settlement | undefined> {
       const c = await prisma.case.findUnique({
@@ -57,7 +57,7 @@ export function getSettlementsRepository() {
           category: true,
         },
       });
-      return c ? mapPrismaCaseToSettlement(c) : undefined;
+      return c ? mapPrismaCaseToSettlement(c as any) : undefined;
     },
     async findBySlug(slug: string): Promise<Settlement | undefined> {
         const c = await prisma.case.findUnique({
@@ -66,7 +66,7 @@ export function getSettlementsRepository() {
             category: true,
           },
         });
-        return c ? mapPrismaCaseToSettlement(c) : undefined;
+        return c ? mapPrismaCaseToSettlement(c as any) : undefined;
       },
     async create(data: Omit<Settlement, "id" | "created_at" | "updated_at">): Promise<Settlement> {
       // Find category by slug
@@ -95,7 +95,7 @@ export function getSettlementsRepository() {
           category: true,
         },
       });
-      return mapPrismaCaseToSettlement(c);
+      return mapPrismaCaseToSettlement(c as any);
     },
   };
 }
