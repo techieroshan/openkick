@@ -19,7 +19,7 @@ FROM node:20-alpine
 RUN apk add --no-cache curl
 WORKDIR /app
 ENV NODE_ENV=production
-ENV PORT=8787
+ENV PORT=3000
 
 COPY --from=build /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
 COPY --from=build /app/apps/bff/package.json /app/apps/bff/package.json
@@ -33,5 +33,5 @@ COPY --from=build /app/apps/bff/prisma.config.ts /app/apps/bff/prisma.config.ts
 COPY --from=build /app/apps/bff/prisma/seed.ts /app/apps/bff/prisma/seed.ts
 RUN npm install -g pnpm@9.15.0 tsx
 
-EXPOSE 8787
+EXPOSE 3000
 CMD ["sh", "-c", "npx prisma migrate deploy && pnpm --filter @openkick/bff prisma db seed && node apps/bff/dist/server.js"]

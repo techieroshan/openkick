@@ -23,12 +23,12 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      PORT: 8787
+      PORT: 3000
       DATABASE_URL: postgresql://openkick:openkick_password@db:5432/openkick?schema=public
     expose:
-      - "8787"
+      - "3000"
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8787/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -39,7 +39,8 @@ services:
       context: .
       dockerfile: docker/web.Dockerfile
     depends_on:
-      - bff
+      bff:
+        condition: service_healthy
     ports:
       - "11701:80"
     restart: unless-stopped
