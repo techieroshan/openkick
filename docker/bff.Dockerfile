@@ -31,7 +31,9 @@ COPY --from=build /app/apps/bff/dist /app/apps/bff/dist
 COPY --from=build /app/apps/bff/prisma /app/apps/bff/prisma
 COPY --from=build /app/apps/bff/prisma.config.ts /app/apps/bff/prisma.config.ts
 COPY --from=build /app/apps/bff/prisma/seed.ts /app/apps/bff/prisma/seed.ts
-RUN npm install -g pnpm@9.15.0 tsx
+RUN npm install -g pnpm@9.15.0 tsx prisma
 
 EXPOSE 3000
-CMD cd apps/bff && npx prisma migrate deploy && tsx prisma/seed.ts && node dist/server.js
+CMD npx prisma migrate deploy --schema apps/bff/prisma/schema.prisma && \
+    tsx apps/bff/prisma/seed.ts && \
+    node apps/bff/dist/server.js
