@@ -14,10 +14,10 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log("Seeding database start...");
-  try {
-    // Categories
-    console.log("Upserting consumer category...");
-    const consumer = await prisma.category.upsert({
+
+  // Categories
+  console.log("Upserting consumer category...");
+  const consumer = await prisma.category.upsert({
     where: { slug: "consumer" },
     update: {},
     create: {
