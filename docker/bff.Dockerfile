@@ -35,4 +35,4 @@ RUN npm install -g pnpm@9.15.0 tsx prisma
 
 WORKDIR /app/apps/bff
 EXPOSE 3000
-CMD prisma migrate deploy && tsx prisma/seed.ts && node dist/server.js
+CMD npx prisma migrate deploy || true && npx tsx prisma/seed.ts || true && node dist/server.js
