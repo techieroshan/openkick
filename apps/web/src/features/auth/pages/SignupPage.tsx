@@ -4,17 +4,21 @@
  */
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthContext";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
   const navigate = useNavigate();
+  const { signup } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreed) return;
-    localStorage.setItem("ok_auth", JSON.stringify({ email, role: "consumer" }));
+    // In a real app, we would call an API to create the account
+    // For now, default to consumer role
+    signup(email, password, "consumer");
     navigate("/dashboard/consumer");
   };
 
